@@ -13,8 +13,7 @@ class PeopleTest extends TestCase
     {
         $response = $this->json('GET', '/api/people');
 
-        $response
-            ->assertStatus(200);
+        $response->assertStatus(200);
     }
 
     /** @test */
@@ -32,11 +31,21 @@ class PeopleTest extends TestCase
     /** @test */
     public function a_sorted_list_of_people()
     {
-        $sort_by = 'height';
+        $sort_by = 'gender';
     
-        $response = $this->json('GET', "/api/people?sort_by={$sort_by}");
+        $response = $this->json('GET', "/api/people?sort={$sort_by}");
 
         $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function sort_list_of_people_with_unavailable_field()
+    {
+        $sort_by = 'height';
+    
+        $response = $this->json('GET', "/api/people?sort={$sort_by}");
+
+        $response->assertStatus(400);
     }
 
     /** @test */
@@ -44,8 +53,32 @@ class PeopleTest extends TestCase
     {
         $name = 'Luke';
     
-        $response = $this->json('GET', "/api/people?name={$name}");
+        $response = $this->json('GET', "/api/people?filter[name]={$name}");
 
         $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function filter_people_with_unavavailable_filter()
+    {
+        $field = 'height';
+    
+        $response = $this->json('GET', "/api/people?filter[{$field}]=test");
+
+        $response->assertStatus(400);
+    }
+
+    /** @test */
+    public function find_person() {
+        $response = $this->json('GET', '/api/people/1');
+
+        $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function cannot_find_person() {
+        $response = $this->json('GET', '/api/people/0');
+
+        $response->assertStatus(404);
     }
 }
